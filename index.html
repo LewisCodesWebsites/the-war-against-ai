@@ -693,10 +693,10 @@
 </head>
 <body>
     <div class="floating-elements">
-        <div class="floating-shape shape-1"></div>
-        <div class="floating-shape shape-2"></div>
-        <div class="floating-shape shape-3"></div>
-        <div class="floating-shape shape-4"></div>
+        <div class="floating-shape shape-1" aria-hidden="true"></div>
+        <div class="floating-shape shape-2" aria-hidden="true"></div>
+        <div class="floating-shape shape-3" aria-hidden="true"></div>
+        <div class="floating-shape shape-4" aria-hidden="true"></div>
     </div>
 
     <header>
@@ -906,6 +906,7 @@
                 
                 // Beautiful success modal
                 const successModal = document.createElement('div');
+                successModal.id = 'successModal';
                 successModal.innerHTML = `
                     <div style="
                         position: fixed;
@@ -961,7 +962,7 @@
                                 margin-bottom: 30px;
                                 font-style: italic;
                             ">Together, we preserve what makes us human.</p>
-                            <button onclick="this.closest('div').parentElement.remove()" style="
+                            <button onclick="document.getElementById('successModal').remove()" style="
                                 background: linear-gradient(135deg, var(--deep-burgundy), var(--dusty-rose));
                                 color: white;
                                 border: none;
@@ -1004,13 +1005,23 @@
         });
 
         // Add gentle parallax effect
+        const floatingShapes = document.querySelectorAll('.floating-shape');
+
+        function updateShapeTransform(shape) {
+            const scrollY = parseFloat(shape.dataset.scrollY) || 0;
+            const offsetX = parseFloat(shape.dataset.offsetX) || 0;
+            const offsetY = parseFloat(shape.dataset.offsetY) || 0;
+            shape.style.transform = `translate(${offsetX}px, ${scrollY + offsetY}px)`;
+        }
+
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             const rate = scrolled * -0.3;
-            
-            document.querySelectorAll('.floating-shape').forEach((shape, index) => {
+
+            floatingShapes.forEach((shape, index) => {
                 const speed = (index + 1) * 0.5;
-                shape.style.transform = `translateY(${rate * speed}px)`;
+                shape.dataset.scrollY = rate * speed;
+                updateShapeTransform(shape);
             });
             
             // Gentle header background change
@@ -1076,13 +1087,12 @@
         document.addEventListener('mousemove', (e) => {
             const mouseX = e.clientX / window.innerWidth;
             const mouseY = e.clientY / window.innerHeight;
-            
-            document.querySelectorAll('.floating-shape').forEach((shape, index) => {
+
+            floatingShapes.forEach((shape, index) => {
                 const speed = (index + 1) * 0.5;
-                const x = (mouseX - 0.5) * speed * 20;
-                const y = (mouseY - 0.5) * speed * 20;
-                
-                shape.style.transform += ` translate(${x}px, ${y}px)`;
+                shape.dataset.offsetX = (mouseX - 0.5) * speed * 20;
+                shape.dataset.offsetY = (mouseY - 0.5) * speed * 20;
+                updateShapeTransform(shape);
             });
         });
     </script>
